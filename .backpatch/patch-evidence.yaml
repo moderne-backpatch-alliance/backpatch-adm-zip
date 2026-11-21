@@ -1,6 +1,6 @@
 schema: osera-patch-evidence/0.1.0
 producer: moderne
-release: 0.5.19-backpatch-00005
+release: 0.5.19-backpatch-00006
 baseline: v0.5.18+backpatch.baseline
 fixes:
   - cve: CVE-2026-39244
@@ -58,12 +58,20 @@ fixes:
     basis: adapted
     artifacts:
       - adm-zip
-    note: "New in this release; upstream's fix in 0.6.1, adapted to 0.5.18. It closes the advisory: adm-zip: Unhandled error event in async DEFLATE decompression crashes Node.js process (DoS)."
+    note: "Carried from 0.5.19-backpatch-00005; upstream's fix in 0.6.1, adapted to 0.5.18. It closes the advisory: adm-zip: Unhandled error event in async DEFLATE decompression crashes Node.js process (DoS)."
+  - cve: CVE-2026-114104
+    upstream_fix_url: https://github.com/cthackers/adm-zip/commit/05101d47b3b983b705cc3e66fc34366118ba7b99
+    advisory_url: https://nvd.nist.gov/vuln/detail/CVE-2026-114104
+    patch_commit_url: https://github.com/moderne-backpatch-alliance/backpatch-adm-zip/commit/eb96373
+    basis: backport
+    artifacts:
+      - adm-zip
+    note: "New in this release; upstream's fix in 0.6.1. adm-zip now refuses an archive that holds two entries of the same name, with the error Duplicate entry name, when it reads the archive's entries. On this line adm-zip keeps its entry table in a plain object, so an archive entry at the root whose whole name is one of the keys of Object.prototype, such as constructor or toString, now also counts as a duplicate: reading such an archive throws Duplicate entry name where 0.5.18 read it. Applications that open archives with entries named that way can no longer read them with this release. The check is upstream's as written; upstream's own line keeps its entry table in an object without a prototype, which this line does not have."
 tests:
-  commit: c5c7ef86ebca356ecfb51b89bce5f5d1ad8e3d03
+  commit: eb9637316718c3b7d3a4b70f17cb84928882ab3e
   command: npm ci --ignore-scripts at the tag for the dev dependencies, then mocha --exit -R xunit with the tested commit's .mocharc.yml spec list (upstream's npm test with the xunit reporter, its timestamp attribute removed)
   runtime: Node.js v22.16.0, npm 11.4.2, mocha 12.0.0-beta-10, macOS 27.2 arm64
-  report: adm-zip-0.5.19-backpatch-00005-tests.zip
-  report_sha256: cef6a7798d20e9315f303ebecb61906541468104659bd799f53bae5c2aada62c
+  report: adm-zip-0.5.19-backpatch-00006-tests.zip
+  report_sha256: a3a75b4f3f1713713ba050c7fe5ebbdd382dc1a5352b8e6ff18b8efdeab677b6
   result: pass
-  note: "upstream's mocha suite (the .mocharc.yml spec list) at the tested commit: 126 tests, 126 passed, 0 failed, 0 skipped. The CVE tests (test/methods/inflater.test.js), with this release's production lines reverted at the tested commit: 12 tests, 8 passed, 4 failed, 0 skipped; with them: 12 tests, 12 passed, 0 failed, 0 skipped. Built with no build step (sources ship as is), npm pack --ignore-scripts in a directory named adm-zip, 12 of npmjs's 19 files for 0.5.18 are identical; the rest are adm-zip.js, headers/entryHeader.js, methods/inflater.js, package.json, util/errors.js, util/utils.js, zipEntry.js. The archive's file-origins.yaml maps each packaged file to the commit, or names its inputs and build."
+  note: "upstream's mocha suite (the .mocharc.yml spec list) at the tested commit: 129 tests, 129 passed, 0 failed, 0 skipped. The CVE tests (test/duplicate_entries/duplicate_entries.test.js), with this release's production lines reverted at the tested commit: 3 tests, 1 passed, 2 failed, 0 skipped; with them: 3 tests, 3 passed, 0 failed, 0 skipped. Built with no build step (sources ship as is), npm pack --ignore-scripts in a directory named adm-zip, 11 of npmjs's 19 files for 0.5.18 are identical; the rest are adm-zip.js, headers/entryHeader.js, methods/inflater.js, package.json, util/errors.js, util/utils.js, zipEntry.js, zipFile.js. The archive's file-origins.yaml maps each packaged file to the commit, or names its inputs and build."
