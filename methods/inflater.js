@@ -27,6 +27,13 @@ module.exports = function (/*Buffer*/ inbuf, /*number*/ expectedLength) {
                 tmp.destroy();
                 callback && callback(Buffer.alloc(0), err);
             };
+            // Route stream errors (e.g. Z_DATA_ERROR on malformed input) through the
+            // callback. Without an "error" listener zlib re-throws the event as an
+            // uncaught exception on a later tick, crashing the host process instead
+            // of failing the call (GHSA-8238-w5pm-2374).
+            tmp.on("error", function (err) {
+                fail(err);
+            });
             tmp.on("data", function (data) {
                 if (done) return;
                 total += data.length;

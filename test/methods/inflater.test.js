@@ -1,5 +1,6 @@
 "use strict";
 const { expect } = require("chai");
+const Zip = require("../../adm-zip");
 const zlib = require("zlib");
 const Inflater = require("../../methods/inflater");
 
@@ -59,6 +60,67 @@ describe("method - inflater output cap", () => {
                 expect(String(err && err.message)).to.match(/exceeds the declared uncompressed size/);
                 done();
             });
+        });
+    });
+});
+
+// a DEFLATE block header with BFINAL=1 and the reserved block type 3, which zlib rejects
+const badDeflate = Buffer.from([0x07, 0x00, 0x00, 0x00]);
+
+function zipWithBadDeflate() {
+    const zip = new Zip();
+    zip.addFile("a.txt", Buffer.alloc(1000, "a"));
+    const buf = zip.toBuffer();
+    expect(buf.readUInt16LE(8)).to.equal(8); // deflated
+    const dataStart = 30 + buf.readUInt16LE(26) + buf.readUInt16LE(28);
+    badDeflate.copy(buf, dataStart);
+    return new Zip(buf);
+}
+
+describe("method - inflater async errors", () => {
+    it("inflateAsync passes a zlib error to the callback", (done) => {
+        new Inflater(badDeflate, 10).inflateAsync(function (result, err) {
+            expect(err).to.be.an("error");
+            expect(result.length).to.equal(0);
+            done();
+        });
+    });
+
+    it("inflateAsync calls the callback only once", (done) => {
+        let calls = 0;
+        new Inflater(badDeflate, 10).inflateAsync(function () {
+            calls++;
+        });
+        setTimeout(() => {
+            expect(calls).to.equal(1);
+            done();
+        }, 50);
+    });
+
+    it("inflateAsync still returns valid data", (done) => {
+        const input = Buffer.alloc(100, "b");
+        const raw = require("zlib").deflateRawSync(input);
+        new Inflater(raw, input.length).inflateAsync(function (result, err) {
+            expect(err).to.equal(undefined);
+            expect(result.equals(input)).to.equal(true);
+            done();
+        });
+    });
+
+    it("readFileAsync reports malformed DEFLATE data as an error", (done) => {
+        const zip = zipWithBadDeflate();
+        zip.readFileAsync("a.txt", function (data, err) {
+            expect(err).to.be.an("error");
+            expect(data.length).to.equal(0);
+            done();
+        });
+    });
+
+    it("readAsTextAsync reports malformed DEFLATE data as an error", (done) => {
+        const zip = zipWithBadDeflate();
+        zip.readAsTextAsync("a.txt", function (data, err) {
+            expect(err).to.be.an("error");
+            done();
         });
     });
 });
