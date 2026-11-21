@@ -1,6 +1,6 @@
 schema: osera-patch-evidence/0.1.0
 producer: moderne
-release: 0.5.19-backpatch-00004
+release: 0.5.19-backpatch-00005
 baseline: v0.5.18+backpatch.baseline
 fixes:
   - cve: CVE-2026-39244
@@ -50,12 +50,20 @@ fixes:
     basis: backport
     artifacts:
       - adm-zip
-    note: "New in this release; upstream's fix in 0.6.1. It closes the advisory: adm-zip extraction preserves SUID/SGID bits from untrusted ZIPs -> local privilege escalation."
+    note: "Carried from 0.5.19-backpatch-00004; upstream's fix in 0.6.1. It closes the advisory: adm-zip extraction preserves SUID/SGID bits from untrusted ZIPs -> local privilege escalation."
+  - cve: CVE-2026-114102
+    upstream_fix_url: https://github.com/cthackers/adm-zip/commit/5e70d3a26097d68fa981c41f022c053117174e49
+    advisory_url: https://nvd.nist.gov/vuln/detail/CVE-2026-114102
+    patch_commit_url: https://github.com/moderne-backpatch-alliance/backpatch-adm-zip/commit/c5c7ef8
+    basis: adapted
+    artifacts:
+      - adm-zip
+    note: "New in this release; upstream's fix in 0.6.1, adapted to 0.5.18. It closes the advisory: adm-zip: Unhandled error event in async DEFLATE decompression crashes Node.js process (DoS)."
 tests:
-  commit: c274c1ac2e8e5e07a4c585a2dd1aa60414645280
+  commit: c5c7ef86ebca356ecfb51b89bce5f5d1ad8e3d03
   command: npm ci --ignore-scripts at the tag for the dev dependencies, then mocha --exit -R xunit with the tested commit's .mocharc.yml spec list (upstream's npm test with the xunit reporter, its timestamp attribute removed)
   runtime: Node.js v22.16.0, npm 11.4.2, mocha 12.0.0-beta-10, macOS 27.2 arm64
-  report: adm-zip-0.5.19-backpatch-00004-tests.zip
-  report_sha256: a870676440a94d64114e30960a77f61ad214ac6861e8ffc981c2adb1504e9af1
+  report: adm-zip-0.5.19-backpatch-00005-tests.zip
+  report_sha256: cef6a7798d20e9315f303ebecb61906541468104659bd799f53bae5c2aada62c
   result: pass
-  note: "upstream's mocha suite (the .mocharc.yml spec list) at the tested commit: 121 tests, 121 passed, 0 failed, 0 skipped. The CVE tests (test/header.js), with this release's production lines reverted at the tested commit: 16 tests, 15 passed, 1 failed, 0 skipped; with them: 16 tests, 16 passed, 0 failed, 0 skipped. Built with no build step (sources ship as is), npm pack --ignore-scripts in a directory named adm-zip, 12 of npmjs's 19 files for 0.5.18 are identical; the rest are adm-zip.js, headers/entryHeader.js, methods/inflater.js, package.json, util/errors.js, util/utils.js, zipEntry.js. The archive's file-origins.yaml maps each packaged file to the commit, or names its inputs and build."
+  note: "upstream's mocha suite (the .mocharc.yml spec list) at the tested commit: 126 tests, 126 passed, 0 failed, 0 skipped. The CVE tests (test/methods/inflater.test.js), with this release's production lines reverted at the tested commit: 12 tests, 8 passed, 4 failed, 0 skipped; with them: 12 tests, 12 passed, 0 failed, 0 skipped. Built with no build step (sources ship as is), npm pack --ignore-scripts in a directory named adm-zip, 12 of npmjs's 19 files for 0.5.18 are identical; the rest are adm-zip.js, headers/entryHeader.js, methods/inflater.js, package.json, util/errors.js, util/utils.js, zipEntry.js. The archive's file-origins.yaml maps each packaged file to the commit, or names its inputs and build."
