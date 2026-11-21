@@ -1,6 +1,6 @@
 schema: osera-patch-evidence/0.1.0
 producer: moderne
-release: 0.5.19-backpatch-00002
+release: 0.5.19-backpatch-00003
 baseline: v0.5.18+backpatch.baseline
 fixes:
   - cve: CVE-2026-39244
@@ -18,12 +18,36 @@ fixes:
     basis: adapted
     artifacts:
       - adm-zip
-    note: "New in this release; upstream's fix in 0.6.1, adapted to 0.5.18. It closes the advisory: adm-zip extraction follows destination symlinks, allowing arbitrary file overwrite."
+    note: "Carried from 0.5.19-backpatch-00002; upstream's fix in 0.6.1, adapted to 0.5.18. It closes the advisory: adm-zip extraction follows destination symlinks, allowing arbitrary file overwrite."
+  - cve: CVE-2026-77301
+    upstream_fix_url: https://github.com/cthackers/adm-zip/commit/2450dcf417aa29df49270237d18c5245794da3e2
+    advisory_url: https://nvd.nist.gov/vuln/detail/CVE-2026-77301
+    patch_commit_url: https://github.com/moderne-backpatch-alliance/backpatch-adm-zip/compare/a36c21a~1...18c46b4
+    basis: adapted
+    artifacts:
+      - adm-zip
+    note: "New in this release; upstream's fix in 0.6.1 (2450dcf, in 0.6.0, and 4916006, in 0.6.1), adapted to 0.5.18. It closes the advisory: adm-zip: Uncontrolled memory allocation via the declared uncompressed size (DoS)."
+  - cve: CVE-2026-92000
+    upstream_fix_url: https://github.com/cthackers/adm-zip/commit/491600683dacb6cb9fe0718a0eeb9cb5eb49afa6
+    advisory_url: https://nvd.nist.gov/vuln/detail/CVE-2026-92000
+    patch_commit_url: https://github.com/moderne-backpatch-alliance/backpatch-adm-zip/compare/a36c21a~1...18c46b4
+    basis: adapted
+    artifacts:
+      - adm-zip
+    note: "New in this release; upstream's fix in 0.6.1, adapted to 0.5.18. It closes the advisory: adm-zip: Decompression-bomb protection (fix for CVE-2026-39244) can be bypassed by declaring uncompressed size as 0."
+  - cve: CVE-2026-114103
+    upstream_fix_url: https://github.com/cthackers/adm-zip/commit/491600683dacb6cb9fe0718a0eeb9cb5eb49afa6
+    advisory_url: https://nvd.nist.gov/vuln/detail/CVE-2026-114103
+    patch_commit_url: https://github.com/moderne-backpatch-alliance/backpatch-adm-zip/compare/a36c21a~1...18c46b4
+    basis: adapted
+    artifacts:
+      - adm-zip
+    note: "New in this release; upstream's fix in 0.6.1, adapted to 0.5.18. It closes the advisory: adm-zip: getDataAsync() bypasses the maxOutputLength size guard enforced by the synchronous getData() path."
 tests:
-  commit: 50e9065770ac5a7ccd69d3b4bfec91af9a82a1d6
+  commit: 18c46b488b34c077c135637fe7e3bdbda763735a
   command: npm ci --ignore-scripts at the tag for the dev dependencies, then mocha --exit -R xunit with the tested commit's .mocharc.yml spec list (upstream's npm test with the xunit reporter, its timestamp attribute removed)
   runtime: Node.js v22.16.0, npm 11.4.2, mocha 12.0.0-beta-10, macOS 27.2 arm64
-  report: adm-zip-0.5.19-backpatch-00002-tests.zip
-  report_sha256: ae0af976b7eb76371c11b049085b92572aba83643c86b8e155a6d1fa7faac19f
+  report: adm-zip-0.5.19-backpatch-00003-tests.zip
+  report_sha256: 00ba2926cc13e7fa5909358fda2384c6564b2ecd0d59647b4864d92182b7f813
   result: pass
-  note: "upstream's mocha suite (the .mocharc.yml spec list) at the tested commit: 103 tests, 103 passed, 0 failed, 0 skipped. The CVE tests (test/symlink_target/symlink_target.test.js), with this release's production lines reverted at the tested commit: 5 tests, 1 passed, 4 failed, 0 skipped; with them: 5 tests, 5 passed, 0 failed, 0 skipped. Built with no build step (sources ship as is), npm pack --ignore-scripts in a directory named adm-zip, 15 of npmjs's 19 files for 0.5.18 are identical; the rest are adm-zip.js, package.json, util/utils.js, zipEntry.js. The archive's file-origins.yaml maps each packaged file to the commit, or names its inputs and build."
+  note: "upstream's mocha suite (the .mocharc.yml spec list) at the tested commit: 120 tests, 120 passed, 0 failed, 0 skipped. The CVE tests (test/inflater_async_cap.test.js test/decompress_bomb.test.js test/inflater_cap.test.js test/methods/inflater.test.js), with this release's production lines reverted at the tested commit: 21 tests, 13 passed, 8 failed, 0 skipped; with them: 21 tests, 21 passed, 0 failed, 0 skipped. Built with no build step (sources ship as is), npm pack --ignore-scripts in a directory named adm-zip, 13 of npmjs's 19 files for 0.5.18 are identical; the rest are adm-zip.js, methods/inflater.js, package.json, util/errors.js, util/utils.js, zipEntry.js. The archive's file-origins.yaml maps each packaged file to the commit, or names its inputs and build."
