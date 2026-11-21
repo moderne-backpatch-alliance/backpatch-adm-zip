@@ -181,6 +181,20 @@ describe("headers", () => {
             expect(head.fileAttr).to.equal(0x01E8);
         });
 
+        it("fileAttr drops setuid, setgid and sticky bits", () => {
+            const head = new centralHeader();
+            head.loadFromBinary(readBuf);
+
+            head.attr = (0o104755 * 0x10000) >>> 0;
+            expect(head.fileAttr).to.equal(0o755);
+
+            head.attr = (0o102644 * 0x10000) >>> 0;
+            expect(head.fileAttr).to.equal(0o644);
+
+            head.attr = (0o041777 * 0x10000) >>> 0;
+            expect(head.fileAttr).to.equal(0o777);
+        });
+
         it("read binary and create new binary from it, they have to be equal", () => {
             const head = new centralHeader();
             head.loadFromBinary(readBuf);
